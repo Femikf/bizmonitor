@@ -1,0 +1,3 @@
+# Ensure JSON files use LF line endings (required by Vercel)
+*.json text eol=lf
+*.sh text eol=lf
