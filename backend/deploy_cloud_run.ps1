@@ -1,4 +1,4 @@
-﻿# BizMonitor Cloud Run Deployment Script (PowerShell)
+# BizMonitor Cloud Run Deployment Script (PowerShell)
 # This script deploys the FastAPI backend to Google Cloud Run
 
 $ErrorActionPreference = "Stop"
@@ -18,8 +18,15 @@ Write-Host "BigQuery DW:  $DATASET_ID"
 Write-Host ""
 
 # 1. Enable required APIs
-Write-Host "[1/3] Enabling required Google Cloud APIs..." -ForegroundColor Yellow
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com bigquery.googleapis.com firestore.googleapis.com --project $PROJECT_ID
+Write-Host "[1/3] Enabling required Google Cloud APIs and configuring IAM..." -ForegroundColor Yellow
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com bigquery.googleapis.com firestore.googleapis.com --project $PROJECT_ID
+
+$PROJECT_NUMBER = gcloud projects describe $PROJECT_ID --format "value(projectNumber)"
+$COMPUTE_SA = "${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:$COMPUTE_SA" --role="roles/storage.objectViewer" --condition=None
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:$COMPUTE_SA" --role="roles/logging.logWriter" --condition=None
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:$COMPUTE_SA" --role="roles/artifactregistry.writer" --condition=None
 
 # 2. Deploy to Cloud Run from source
 Write-Host "[2/3] Building and deploying container to Cloud Run..." -ForegroundColor Yellow

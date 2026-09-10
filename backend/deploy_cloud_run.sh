@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 # BizMonitor Cloud Run Deployment Script (Bash / Cloud Shell)
 set -e
 
@@ -16,8 +16,16 @@ echo "Service Name: $SERVICE_NAME"
 echo "BigQuery DW:  $DATASET_ID"
 echo ""
 
-echo "[1/3] Enabling required Google Cloud APIs..."
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com bigquery.googleapis.com firestore.googleapis.com --project "$PROJECT_ID"
+echo "[1/3] Enabling required Google Cloud APIs and configuring permissions..."
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com bigquery.googleapis.com firestore.googleapis.com --project "$PROJECT_ID"
+
+PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
+COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+
+echo "Configuring permissions for build service account: $COMPUTE_SA"
+gcloud projects add-iam-policy-binding "$PROJECT_ID" --member="serviceAccount:$COMPUTE_SA" --role="roles/storage.objectViewer" --condition=None >/dev/null 2>&1 || true
+gcloud projects add-iam-policy-binding "$PROJECT_ID" --member="serviceAccount:$COMPUTE_SA" --role="roles/logging.logWriter" --condition=None >/dev/null 2>&1 || true
+gcloud projects add-iam-policy-binding "$PROJECT_ID" --member="serviceAccount:$COMPUTE_SA" --role="roles/artifactregistry.writer" --condition=None >/dev/null 2>&1 || true
 
 echo "[2/3] Building and deploying container to Cloud Run..."
 gcloud run deploy "$SERVICE_NAME" \
