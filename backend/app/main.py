@@ -1,5 +1,16 @@
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.upload import router as upload_router
+from app.api.analytics_router import router as analytics_router
+from app.api.cloud_router import router as cloud_router
+from app.api.ask_router import router as ask_router
 
 app = FastAPI(
     title="OpsPilot API",
@@ -16,6 +27,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(upload_router)
+app.include_router(analytics_router)
+app.include_router(cloud_router)
+app.include_router(ask_router)
+
+
+
 
 @app.get("/health")
 def health_check():
@@ -23,6 +41,7 @@ def health_check():
         "status": "ok",
         "service": "OpsPilot API"
     }
+
 
 
 if __name__ == "__main__":

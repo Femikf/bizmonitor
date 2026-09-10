@@ -24,7 +24,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'data', label: 'Data', icon: Database },
     { id: 'insights', label: 'Insights', icon: Lightbulb, badge: 'Coming soon' },
     { id: 'forecast', label: 'Forecast', icon: LineChart, badge: 'Coming soon' },
-    { id: 'ask', label: 'Ask BizMonitor', icon: MessageSquare, badge: 'Coming soon' },
+    { id: 'ask', label: 'Ask OpsPilot', icon: MessageSquare, badge: 'AI Live' },
     { id: 'settings', label: 'Settings', icon: Settings, badge: 'Coming soon' },
   ];
 
@@ -102,6 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
           return (
             <div
               key={item.id}
+              id={`sidebar-nav-${item.id}`}
               className={`sidebar-item ${isActive ? 'active' : ''}`}
               onClick={() => setActiveTab(item.id)}
             >
